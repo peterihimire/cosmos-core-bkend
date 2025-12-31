@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { addNewProject } from "../controllers/projectController";
+import {
+  addNewProject,
+  getAllProjectsController,
+  getProject,
+  updateProjectController,
+  deleteProjectController,
+} from "../controllers/projectController";
 import { ProjectValidator } from "../middlewares/validatorMiddleware";
 import {
   verifyTokenAndAuthorization,
@@ -15,7 +21,19 @@ router.post(
   requireAdmin,
   addNewProject
 );
-// router.get("", verifyTokenAndAuthorization, getTransactions);
-// router.get("/:id", verifyTokenAndAuthorization, getTransaction);
+router.get("", verifyTokenAndAuthorization, getAllProjectsController);
+router.get("/:id", verifyTokenAndAuthorization, getProject);
+router.patch(
+  "/:id",
+  verifyTokenAndAuthorization,
+  requireAdmin,
+  updateProjectController
+);
+router.delete(
+  "/:id",
+  verifyTokenAndAuthorization,
+  requireAdmin,
+  deleteProjectController
+);
 
 export default router;

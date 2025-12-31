@@ -1,7 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-import { v4 as uuidv4 } from "uuid";
 
-// Define the interface for a Project document
 export interface IProject extends Document {
   name: string;
   description?: string;
@@ -10,7 +8,6 @@ export interface IProject extends Document {
   updatedAt: Date;
 }
 
-// Define the schema for a Task
 const ProjectSchema = new Schema<IProject>(
   {
     name: { type: String, required: true },

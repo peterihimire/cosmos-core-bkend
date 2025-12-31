@@ -1,15 +1,14 @@
 import { RequestHandler } from "express";
-import { validationResult } from "express-validator";
-import BaseError from "../utils/base-error";
 import { httpStatusCodes } from "../utils/http-status-codes";
 import { CreateTaskDTO } from "../types/taskDto";
-import { ITask } from "../models/Task";
 import {
   addTask,
   getAllTasks,
   getTaskById,
   claimTask,
   completeTask,
+  updateTask,
+  deleteTask,
 } from "../services/taskService";
 
 // Adds a new task.
@@ -17,25 +16,11 @@ export const addNewTask: RequestHandler = async (req, res, next) => {
   const { title, description, projectId }: CreateTaskDTO = req.body;
 
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ errors: errors.array() });
-    }
-
     const createdTask = await addTask({
       title,
       description,
       projectId,
     });
-
-    if (!createdTask) {
-      throw new BaseError(
-        "Failed to create user",
-        httpStatusCodes.INTERNAL_SERVER
-      );
-    }
 
     console.log("This is created task", createdTask);
     const taskObject = createdTask.toObject();
@@ -100,11 +85,7 @@ export const getTasks: RequestHandler = async (req, res, next) => {
 export const getTask: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const getTask: ITask | null = await getTaskById({ id });
-
-    if (!getTask) {
-      throw new BaseError("No tasks found", httpStatusCodes.NOT_FOUND);
-    }
+    const getTask = await getTaskById({ id });
 
     console.log("This are all the available tasks", getTask);
     const taskObject = getTask.toObject();
@@ -123,16 +104,66 @@ export const getTask: RequestHandler = async (req, res, next) => {
   }
 };
 
+// Update a task
+export const updateTaskController: RequestHandler = async (req, res, next) => {
+  const { id } = req.params;
+  const { title, description, status, assignedTo, expiresAt } = req.body;
+  const userId = req.user?.id;
+
+  try {
+    const updatedTask = await updateTask(userId, {
+      id,
+      title,
+      description,
+      status,
+      assignedTo,
+      expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+    });
+
+    res.status(httpStatusCodes.OK).json({
+      status: "success",
+      msg: "Task updated successfully!",
+      data: updatedTask.toObject(),
+    });
+  } catch (error: any) {
+    if (!error.statusCode) {
+      error.statusCode = httpStatusCodes.INTERNAL_SERVER;
+    }
+    next(error);
+  }
+};
+
+// Delete a task
+export const deleteTaskController: RequestHandler = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const deletedTask = await deleteTask({
+      id,
+    });
+
+    res.status(httpStatusCodes.OK).json({
+      status: "success",
+      msg: "Task deleted successfully!",
+      data: {
+        id: deletedTask._id,
+        title: deletedTask.title,
+      },
+    });
+  } catch (error: any) {
+    if (!error.statusCode) {
+      error.statusCode = httpStatusCodes.INTERNAL_SERVER;
+    }
+    next(error);
+  }
+};
+
 // Claim a task
 export const claimTaskController: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
   const userId = req.user?.id as string;
 
   try {
-    const task = await getTaskById({ id });
-    if (!task) {
-      throw new BaseError("Task not found", httpStatusCodes.NOT_FOUND);
-    }
     const taskData = await claimTask(id, userId);
 
     res.status(httpStatusCodes.OK).json({

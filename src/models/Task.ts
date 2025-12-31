@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 
-// Define the interface for a Task document
 export interface ITask extends Document {
   title: string;
   description: string;
@@ -14,7 +13,6 @@ export interface ITask extends Document {
   updatedAt: Date;
 }
 
-// Define the schema for a Task
 const TaskSchema: Schema = new Schema(
   {
     id: {

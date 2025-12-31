@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
-import BaseError from "../utils/base-error";
 import { httpStatusCodes } from "../utils/http-status-codes";
 import { RegisterUserDTO, LoginUserDTO } from "../types/authDto";
 import {
@@ -25,13 +24,6 @@ export const register: RequestHandler = async (req, res, next) => {
       email,
       password,
     });
-
-    if (!createdUser) {
-      throw new BaseError(
-        "Failed to create user",
-        httpStatusCodes.INTERNAL_SERVER
-      );
-    }
 
     // console.log("This is created user", createdUser);
     const userObject = createdUser.toObject();

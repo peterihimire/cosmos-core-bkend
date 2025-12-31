@@ -1,13 +1,10 @@
-import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import TaskModel, { ITask } from "../models/Task";
+import { ITask } from "../models/Task";
 import * as taskRepository from "../repositories/taskRepository";
 import * as projectRepository from "../repositories/projectRepository";
 import BaseError from "../utils/base-error";
 import { httpStatusCodes } from "../utils/http-status-codes";
-import mongoose from "mongoose";
-import e from "express";
-import { ClientSession } from "mongoose";
+// import mongoose from "mongoose";
 import { logAction } from "./auditLogService";
 
 dotenv.config();
@@ -24,7 +21,7 @@ export const addTask = async (data: {
   title: string;
   description: string;
   projectId: string;
-}): Promise<ITask | null> => {
+}): Promise<ITask> => {
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
   console.log("This is project ID", data.projectId);
@@ -45,9 +42,7 @@ export const addTask = async (data: {
 };
 
 // Get task by ID
-export const getTaskById = async (data: {
-  id: string;
-}): Promise<ITask | null> => {
+export const getTaskById = async (data: { id: string }): Promise<ITask> => {
   const existingTask = await taskRepository.findTaskById(data.id);
   if (!existingTask) {
     throw new BaseError("Task does not exist!", httpStatusCodes.NOT_FOUND);
@@ -75,7 +70,6 @@ export const getAllTasks = async (
     const query: any = {};
     console.log("Here are the filters", filters);
 
-    // Filtering
     if (filters.status) query.status = filters.status;
     if (filters.assignedTo) query.assignedTo = filters.assignedTo;
     if (filters.fromDate || filters.toDate) {
@@ -91,15 +85,11 @@ export const getAllTasks = async (
       to.setHours(23, 59, 59, 999);
       query.createdAt.$lte = to;
     }
-    // if (filters.fromDate || filters.toDate) query.createdAt = {};
-    // if (filters.fromDate) query.createdAt.$gte = new Date(filters.fromDate);
-    // if (filters.toDate) query.createdAt.$lte = new Date(filters.toDate);
 
     const totalItems = await taskRepository.countTasks(query);
     const tasks = await taskRepository.findAllTasks(limit, offset, query);
     const totalPages = Math.ceil(totalItems / limit);
 
-    // Return pagination details
     return {
       totalItems,
       totalPages,
@@ -114,6 +104,66 @@ export const getAllTasks = async (
   }
 };
 
+// Update a task
+export const updateTask = async (
+  userId: string | undefined,
+  data: {
+    id: string;
+    title?: string;
+    description?: string;
+    status?: string;
+    assignedTo?: string;
+    expiresAt?: Date;
+    // updatedBy: string; // User ID of who's making the update
+  }
+): Promise<ITask> => {
+  // Authentication check moved to service
+  if (!userId) {
+    throw new BaseError(
+      "User authentication required",
+      httpStatusCodes.UNAUTHORIZED
+    );
+  }
+  const existingTask = await taskRepository.findTaskById(data.id);
+  if (!existingTask) {
+    throw new BaseError("Task not found", httpStatusCodes.NOT_FOUND);
+  }
+
+  // Prepare update object
+  const updates: Partial<ITask> = {};
+  if (data.title !== undefined) updates.title = data.title;
+  if (data.description !== undefined) updates.description = data.description;
+  if (data.status !== undefined) updates.status = data.status;
+  if (data.assignedTo !== undefined) updates.assignedTo = data.assignedTo;
+  if (data.expiresAt !== undefined) updates.expiresAt = data.expiresAt;
+
+  updates.updatedAt = new Date();
+
+  const updatedTask = await taskRepository.updateTaskById(data.id, updates);
+
+  if (!updatedTask) {
+    throw new BaseError("Failed to update task", httpStatusCodes.BAD_REQUEST);
+  }
+
+  return updatedTask;
+};
+
+// Delete a task
+export const deleteTask = async (data: { id: string }): Promise<ITask> => {
+  const existingTask = await taskRepository.findTaskById(data.id);
+  if (!existingTask) {
+    throw new BaseError("Task not found", httpStatusCodes.NOT_FOUND);
+  }
+
+  const deletedTask = await taskRepository.deleteTaskById(data.id);
+
+  if (!deletedTask) {
+    throw new BaseError("Failed to delete task", httpStatusCodes.BAD_REQUEST);
+  }
+
+  return deletedTask;
+};
+
 // Claim a task
 export const claimTask = async (
   taskId: string,
@@ -122,6 +172,13 @@ export const claimTask = async (
   // const session = await mongoose.startSession();
   // session.startTransaction();
   try {
+    const id = taskId;
+    const task = await getTaskById({ id });
+
+    if (!task) {
+      throw new BaseError("Task not found", httpStatusCodes.NOT_FOUND);
+    }
+
     const activeTaskCount = await taskRepository.activeTasks(
       userId
       // session

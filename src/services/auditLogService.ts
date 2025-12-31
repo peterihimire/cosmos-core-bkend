@@ -16,7 +16,6 @@ interface AuditLogPayload {
   details?: string;
 }
 
-// Log an action to the audit log
 export const logAction = async (
   payload: AuditLogPayload
 ): Promise<IAuditLog> => {

@@ -11,7 +11,7 @@ import {
 } from "./middlewares/errorHandlerMiddleware";
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://localhost:3000"],
+  origin: ["http://localhost:5173", "https://localhost:5173"],
   methods: ["GET", "PUT", "PATCH", "POST", "OPTIONS", "DELETE", "HEAD"],
   allowedHeaders: [
     "Content-Type",

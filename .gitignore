@@ -1,11 +1,11 @@
 # Node modules
-node_modules/
+node_modules
 
 # Environment files
 .env
 
 # Local database
-data/
+data
 
 # Build artifacts
-dist/
+dist

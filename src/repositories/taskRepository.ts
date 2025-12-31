@@ -8,7 +8,7 @@ export const createTask = async (data: {
   description: string;
   projectId: string;
   expiresAt: Date;
-}): Promise<ITask | null> => {
+}): Promise<ITask> => {
   const newTask = new TaskModel({
     title: data.title,
     description: data.description,
@@ -28,6 +28,26 @@ export const findTaskById = async (id: string): Promise<ITask | null> => {
 // Count a task for use in pagination
 export const countTasks = async (filter: any = {}): Promise<number> => {
   return TaskModel.countDocuments(filter);
+};
+
+// Update a task by id
+export const updateTaskById = async (
+  id: string,
+  updates: Partial<ITask>
+): Promise<ITask | null> => {
+  const updatedTask = await TaskModel.findByIdAndUpdate(
+    id,
+    { $set: updates },
+    { new: true, runValidators: true }
+  ).exec();
+
+  return updatedTask;
+};
+
+// Delete a task by id
+export const deleteTaskById = async (id: string): Promise<ITask | null> => {
+  const deletedTask = await TaskModel.findByIdAndDelete(id).exec();
+  return deletedTask;
 };
 
 // Find all task

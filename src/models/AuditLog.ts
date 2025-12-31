@@ -10,7 +10,7 @@ export interface IAuditLog extends Document {
   userId: string;
   userEmail: string;
   userRole: "USER" | "ADMIN";
-  resourceType: string; // e.g., "Task", "Project"
+  resourceType: string; 
   resourceId?: string;
   details?: string;
   createdAt: Date;
@@ -29,7 +29,7 @@ const AuditLogSchema: Schema = new Schema(
         "TASK_EXPIRED",
         "TASK_REASSIGNED",
       ],
-    }, // Task created, claimed, etc.
+    }, 
     userId: { type: String, required: true },
     userEmail: { type: String, required: true },
     userRole: { type: String, required: true, enum: ["USER", "ADMIN"] },

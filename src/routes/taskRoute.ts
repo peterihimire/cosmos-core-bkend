@@ -11,6 +11,8 @@ import {
   getTasks,
   claimTaskController,
   completeTaskController,
+  deleteTaskController,
+  updateTaskController,
 } from "../controllers/taskController";
 
 const router = Router();
@@ -25,6 +27,18 @@ router.post(
 );
 router.get("", verifyTokenAndAuthorization, getTasks);
 router.get("/:id", verifyTokenAndAuthorization, getTask);
+router.patch(
+  "/:id",
+  verifyTokenAndAuthorization,
+  requireAdmin,
+  updateTaskController
+);
+router.delete(
+  "/:id",
+  verifyTokenAndAuthorization,
+  requireAdmin,
+  deleteTaskController
+);
 router.patch(
   "/:id/claim",
   verifyTokenAndAuthorization,

@@ -1,12 +1,13 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
-import BaseError from "../utils/base-error";
 import { httpStatusCodes } from "../utils/http-status-codes";
 import { CreateProjectDTO } from "../types/projectDto";
 import {
   addProject,
-  // foundAllTransactions,
-  // foundTransactionById,
+  getAllProjects,
+  getProjectById,
+  updateProject,
+  deleteProject,
 } from "../services/projectService";
 
 // Adds a new project.
@@ -27,21 +28,144 @@ export const addNewProject: RequestHandler = async (req, res, next) => {
       createdBy: req.user?.id as string,
     });
 
-    if (!createdProject) {
-      throw new BaseError(
-        "Failed to create user",
-        httpStatusCodes.INTERNAL_SERVER
-      );
-    }
-
     console.log("This is created project", createdProject);
     const projectObject = createdProject.toObject();
-    // const { _id, ...projectData } = projectObject;
 
     res.status(httpStatusCodes.CREATED).json({
       status: "success",
       msg: "Project added!",
-      data:  projectObject,
+      data: projectObject,
+    });
+  } catch (error: any) {
+    if (!error.statusCode) {
+      error.statusCode = httpStatusCodes.INTERNAL_SERVER;
+    }
+    next(error);
+  }
+};
+
+// Get a single project by ID
+export const getProject: RequestHandler = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const getProject = await getProjectById({ id });
+
+    console.log("This are all the available project", getProject);
+    const projectObject = getProject.toObject();
+
+    res.status(httpStatusCodes.OK).json({
+      status: "success",
+      msg: "Project info",
+      data: projectObject,
+    });
+  } catch (error: any) {
+    if (!error.statusCode) {
+      error.statusCode = httpStatusCodes.INTERNAL_SERVER;
+    }
+    next(error);
+  }
+};
+
+// Get all projects with pagination and filtering
+export const getAllProjectsController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const sortBy = (req.query.sortBy as string) || "createdAt";
+    const sortOrder = (req.query.sortOrder as "asc" | "desc") || "desc";
+
+    // Build filters
+    const filters: {
+      fromDate?: string;
+      toDate?: string;
+    } = {};
+
+    if (req.query.fromDate) filters.fromDate = String(req.query.fromDate);
+    if (req.query.toDate) filters.toDate = String(req.query.toDate);
+
+    const userId = req.user?.id;
+
+    const result = await getAllProjects(
+      userId,
+      filters,
+      page,
+      limit,
+      sortBy,
+      sortOrder
+    );
+
+    res.status(httpStatusCodes.OK).json({
+      status: "success",
+      msg: "Projects retrieved successfully!",
+      data: {
+        projects: result.projects.map((project) => project.toObject()),
+        pagination: result.pagination,
+      },
+    });
+  } catch (error: any) {
+    if (!error.statusCode) {
+      error.statusCode = httpStatusCodes.INTERNAL_SERVER;
+    }
+    next(error);
+  }
+};
+
+// Update a project
+export const updateProjectController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const { id } = req.params;
+  const { name, description, status, members } = req.body;
+  const userId = req.user?.id;
+
+  try {
+    const updatedProject = await updateProject(userId, {
+      id,
+      name,
+      description,
+      status,
+      members,
+    });
+
+    res.status(httpStatusCodes.OK).json({
+      status: "success",
+      msg: "Project updated successfully!",
+      data: updatedProject.toObject(),
+    });
+  } catch (error: any) {
+    if (!error.statusCode) {
+      error.statusCode = httpStatusCodes.INTERNAL_SERVER;
+    }
+    next(error);
+  }
+};
+
+// Delete a project
+export const deleteProjectController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  try {
+    const deletedProject = await deleteProject(userId, { id });
+
+    res.status(httpStatusCodes.OK).json({
+      status: "success",
+      msg: "Project deleted successfully!",
+      data: {
+        id: deletedProject._id,
+        name: deletedProject.name,
+        deletedAt: new Date(),
+      },
     });
   } catch (error: any) {
     if (!error.statusCode) {

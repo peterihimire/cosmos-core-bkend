@@ -22,7 +22,7 @@ export const registerUser = async (data: {
   lastname: string;
   email: string;
   password: string;
-}): Promise<IUser | null> => {
+}): Promise<IUser> => {
   const existingUser = await authRepository.findUserByEmail(data.email);
   if (existingUser) {
     throw new BaseError(
@@ -40,6 +40,13 @@ export const registerUser = async (data: {
     email: data.email,
     password: hashedPassword,
   });
+
+  if (!newUser) {
+    throw new BaseError(
+      "Failed to create user",
+      httpStatusCodes.INTERNAL_SERVER
+    );
+  }
 
   return newUser;
 };
@@ -72,13 +79,13 @@ export const loginUser = async (data: {
   const accessToken = sign(
     { id: foundUser.id, email: foundUser.email, role: foundUser.role },
     JWT_KEY,
-    { expiresIn: "1h" } // Access token expiration
+    { expiresIn: "1h" }
   );
 
   const refreshToken = sign(
     { id: foundUser.id, email: foundUser.email },
     JWT_REFRESH_KEY,
-    { expiresIn: "7d" } // Refresh token expiration
+    { expiresIn: "7d" }
   );
 
   return { accessToken, refreshToken, user: foundUser };
