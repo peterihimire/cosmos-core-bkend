@@ -14,8 +14,21 @@ import {
   deleteTaskController,
   updateTaskController,
 } from "../controllers/taskController";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 const router = Router();
+
+const claimLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // 5 claims per minute
+  keyGenerator: (req) => req?.user?.id || ipKeyGenerator(req as any),
+  message: {
+    status: "error",
+    msg: "You are claiming tasks too fast. Slow down.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 router.post(
   "",
@@ -42,6 +55,7 @@ router.delete(
 router.patch(
   "/:id/claim",
   verifyTokenAndAuthorization,
+  claimLimiter,
   auditMiddleware("TASK_CLAIMED", "Task"),
   claimTaskController
 );

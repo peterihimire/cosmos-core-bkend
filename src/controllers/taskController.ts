@@ -22,7 +22,6 @@ export const addNewTask: RequestHandler = async (req, res, next) => {
       projectId,
     });
 
-    console.log("This is created task", createdTask);
     const taskObject = createdTask.toObject();
     // const { _id, ...taskData } = taskObject;
 
@@ -87,7 +86,6 @@ export const getTask: RequestHandler = async (req, res, next) => {
   try {
     const getTask = await getTaskById({ id });
 
-    console.log("This are all the available tasks", getTask);
     const taskObject = getTask.toObject();
     // const { _id, ...taskData } = taskObject;
 

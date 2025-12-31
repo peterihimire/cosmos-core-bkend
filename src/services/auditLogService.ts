@@ -23,7 +23,7 @@ export const logAction = async (
     ...payload,
     timestamp: new Date(),
   });
-  console.log("Audit Log Created:", log);
+
   await log.save();
   return log;
 };

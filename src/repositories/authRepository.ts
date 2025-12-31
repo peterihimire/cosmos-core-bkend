@@ -2,12 +2,7 @@ import UserModel from "../models/User";
 import { IUser } from "../models/User";
 
 // Finds a user by email.
-export const findUserByEmail = async (
-  email: string
-): Promise<IUser | null> => {
-  const users = await UserModel.find({});
-  console.log("ALL USERS:", users);
-  console.log('model collection name',UserModel.collection.name);
+export const findUserByEmail = async (email: string): Promise<IUser | null> => {
   return UserModel.findOne({ email }).exec();
 };
 
@@ -33,4 +28,3 @@ export const createUser = async (data: {
   await newUser.save();
   return newUser;
 };
-

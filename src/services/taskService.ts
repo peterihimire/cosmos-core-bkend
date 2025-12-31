@@ -24,12 +24,11 @@ export const addTask = async (data: {
 }): Promise<ITask> => {
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
-  console.log("This is project ID", data.projectId);
+
   const validProject = await projectRepository.findProjectById(data.projectId);
   if (!validProject) {
     throw new BaseError("Project does not exist!", httpStatusCodes.NOT_FOUND);
   }
-  console.log("This is valid project", validProject);
 
   const newTask = await taskRepository.createTask({
     title: data.title,
@@ -68,7 +67,6 @@ export const getAllTasks = async (
 
   try {
     const query: any = {};
-    console.log("Here are the filters", filters);
 
     if (filters.status) query.status = filters.status;
     if (filters.assignedTo) query.assignedTo = filters.assignedTo;

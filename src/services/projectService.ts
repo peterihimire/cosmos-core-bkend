@@ -42,7 +42,6 @@ export const getProjectById = async (data: {
 
 // Get all projects with pagination and filtering
 export const getAllProjects = async (
-  userId: string | undefined,
   filters: {
     status?: string;
     search?: string;
@@ -51,9 +50,7 @@ export const getAllProjects = async (
     toDate?: string;
   } = {},
   page: number = 1,
-  limit: number = 10,
-  sortBy: string = "createdAt",
-  sortOrder: "asc" | "desc" = "desc"
+  limit: number = 10
 ): Promise<{
   projects: IProject[];
   pagination: {
@@ -67,9 +64,6 @@ export const getAllProjects = async (
 
   const mongoFilter: any = {};
 
-  if (filters.status) mongoFilter.status = filters.status;
-  if (filters.createdBy) mongoFilter.createdBy = filters.createdBy;
-
   if (filters.fromDate || filters.toDate) {
     mongoFilter.createdAt = {};
     if (filters.fromDate)
@@ -77,22 +71,8 @@ export const getAllProjects = async (
     if (filters.toDate) mongoFilter.createdAt.$lte = new Date(filters.toDate);
   }
 
-  if (filters.search) {
-    mongoFilter.$or = [
-      { name: { $regex: filters.search, $options: "i" } },
-      { description: { $regex: filters.search, $options: "i" } },
-    ];
-  }
-
-  if (userId) {
-    mongoFilter.$or = [{ createdBy: userId }, { "members.userId": userId }];
-  }
-
-  const sort: any = {};
-  sort[sortBy] = sortOrder === "asc" ? 1 : -1;
-
   const [projects, total] = await Promise.all([
-    projectRepository.findAllProjects(mongoFilter, skip, limit, sort),
+    projectRepository.findAllProjects(mongoFilter, skip, limit),
     projectRepository.countProjects(mongoFilter),
   ]);
 

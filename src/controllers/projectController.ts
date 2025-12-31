@@ -28,7 +28,6 @@ export const addNewProject: RequestHandler = async (req, res, next) => {
       createdBy: req.user?.id as string,
     });
 
-    console.log("This is created project", createdProject);
     const projectObject = createdProject.toObject();
 
     res.status(httpStatusCodes.CREATED).json({
@@ -50,7 +49,6 @@ export const getProject: RequestHandler = async (req, res, next) => {
   try {
     const getProject = await getProjectById({ id });
 
-    console.log("This are all the available project", getProject);
     const projectObject = getProject.toObject();
 
     res.status(httpStatusCodes.OK).json({
@@ -75,10 +73,7 @@ export const getAllProjectsController: RequestHandler = async (
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const sortBy = (req.query.sortBy as string) || "createdAt";
-    const sortOrder = (req.query.sortOrder as "asc" | "desc") || "desc";
 
-    // Build filters
     const filters: {
       fromDate?: string;
       toDate?: string;
@@ -87,16 +82,7 @@ export const getAllProjectsController: RequestHandler = async (
     if (req.query.fromDate) filters.fromDate = String(req.query.fromDate);
     if (req.query.toDate) filters.toDate = String(req.query.toDate);
 
-    const userId = req.user?.id;
-
-    const result = await getAllProjects(
-      userId,
-      filters,
-      page,
-      limit,
-      sortBy,
-      sortOrder
-    );
+    const result = await getAllProjects(filters, page, limit);
 
     res.status(httpStatusCodes.OK).json({
       status: "success",

@@ -23,7 +23,7 @@ export const verifyToken: RequestHandler = (req, res, next) => {
         email: decoded.email,
         role: decoded.role,
       } as IUser;
-      console.log(req.user);
+
       next();
     });
   } else {

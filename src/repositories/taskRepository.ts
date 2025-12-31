@@ -1,4 +1,3 @@
-import { ClientSession } from "mongoose";
 import TaskModel from "../models/Task";
 import { ITask } from "../models/Task";
 
@@ -60,16 +59,18 @@ export const findAllTasks = async (
 };
 
 // Claim a task
+/* 
+  This is where atomic updates with condition was implemented 
+**/
 export const claimTask = async (
   taskId: string,
   userId: string
-  // session: ClientSession
 ): Promise<ITask | null> => {
   const claimedTask = await TaskModel.findOneAndUpdate(
     {
       _id: taskId,
-      assignedTo: "", // only unassigned tasks
-      status: "OPEN", // optional: only open tasks
+      assignedTo: null,
+      status: "OPEN",
     },
     {
       $set: {
@@ -80,26 +81,17 @@ export const claimTask = async (
     },
     {
       new: true,
-      // session
-    } // return the updated document
+    }
   ).exec();
   return claimedTask;
 };
 
 // Active task count
-export const activeTasks = async (
-  userId: string
-  // session: ClientSession
-): Promise<number> => {
-  const activeTasks = await TaskModel.countDocuments(
-    {
-      assignedTo: userId,
-      status: "IN_PROGRESS",
-    },
-    {
-      // session
-    }
-  );
+export const activeTasks = async (userId: string): Promise<number> => {
+  const activeTasks = await TaskModel.countDocuments({
+    assignedTo: userId,
+    status: "IN_PROGRESS",
+  });
 
   return activeTasks;
 };
@@ -143,6 +135,9 @@ export const findReopenedTasks = async (cutoff: Date): Promise<ITask[]> => {
 };
 
 // Set Task as completed
+/* 
+  This is where atomic updates with condition was implemented 
+**/
 export const completeTask = async (
   taskId: string,
   userId: string

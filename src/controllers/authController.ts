@@ -25,7 +25,6 @@ export const register: RequestHandler = async (req, res, next) => {
       password,
     });
 
-    // console.log("This is created user", createdUser);
     const userObject = createdUser.toObject();
     const { password: _, ...userData } = userObject;
 

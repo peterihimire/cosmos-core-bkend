@@ -1,4 +1,4 @@
-# Qacetech Challenge API
+# Cosmos Core Assessment
 
 ## Introduction
 
@@ -54,36 +54,36 @@ Follow these instructions to set up the project on your local machine.
 
 1. Clone the repository:
 
-    ```sh
-    git clone https://github.com/peterihimire/qasetech-task.git
-    ```
+   ```sh
+   git clone https://github.com/peterihimire/qasetech-task.git
+   ```
 
 2. Change directory into the project folder:
 
-    ```sh
-    cd qasetech-task
-    ```
+   ```sh
+   cd qasetech-task
+   ```
 
 3. Install dependencies:
 
-    ```sh
-    npm install
-    ```
+   ```sh
+   npm install
+   ```
 
 4. Set up the environment variables (See Environment Variables):
 
-    Create a `.env` file in the root directory and copy contents of `.env.example` to your created `.env` file.
+   Create a `.env` file in the root directory and copy contents of `.env.example` to your created `.env` file.
 
-    ```sh
-    cp .env.example .env
-    ```
+   ```sh
+   cp .env.example .env
+   ```
 
 ## Environment Variables
 
 The project requires several environment variables to be configured. Here’s a brief overview of each:
 
 - `MONGO_URI`: MongoDB connection string.
-_ `NODE_ENV`: Node environment either development or production
+  \_ `NODE_ENV`: Node environment either development or production
 - `JWT_KEY`: Secret key for signing JWT tokens.
 - `JWT_REFRESH_KEY`: Secret key for signing the refresh tokens.
 - `PORT`: Port number where the server will run.
@@ -94,15 +94,15 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 
 1. Start the server:
 
-    ```sh
-    npm start
-    # or
-    yarn start
-    ```
+   ```sh
+   npm start
+   # or
+   yarn start
+   ```
 
 2. Access the API documentation:
 
-    Visit the Postman documentation [Link](https://documenter.getpostman.com/view/12340633/2sA3s1nrJj) of this transaction app.
+   Visit the Postman documentation [Link](https://documenter.getpostman.com/view/12340633/2sA3s1nrJj) of this transaction app.
 
 ## API Endpoints
 
@@ -163,9 +163,9 @@ Authorization: Bearer <token>
     "status": "success",
     "msg": "Signin successful",
     "data": {
-        "_id": "66b47ff1bc6317117465f5f1",
-        "username": "benji4life",
-        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTQ4MywiZXhwIjoxNzIzMTA5MDgzfQ.LX17oA4A27qxkHqEqEuvUk_-eAXsTJmh-LA0_MhmgdQ"
+      "_id": "66b47ff1bc6317117465f5f1",
+      "username": "benji4life",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTQ4MywiZXhwIjoxNzIzMTA5MDgzfQ.LX17oA4A27qxkHqEqEuvUk_-eAXsTJmh-LA0_MhmgdQ"
     }
   }
   ```
@@ -190,8 +190,8 @@ Authorization: Bearer <token>
     "status": "success",
     "msg": "Token refreshed successfully",
     "data": {
-        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTM5NywiZXhwIjoxNzIzMTA4OTk3fQ.iCfTCDqcD4QaPs5r33U0KX1JZErZAw6w9VIvbAVq7NI",
-        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTM5NywiZXhwIjoxNzIzNzEwMTk3fQ.JsdBxpebliNunwZ4Q91qmCE8-Nzj2W9VkVaK2cHQgoo"
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTM5NywiZXhwIjoxNzIzMTA4OTk3fQ.iCfTCDqcD4QaPs5r33U0KX1JZErZAw6w9VIvbAVq7NI",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTM5NywiZXhwIjoxNzIzNzEwMTk3fQ.JsdBxpebliNunwZ4Q91qmCE8-Nzj2W9VkVaK2cHQgoo"
     }
   }
   ```
@@ -313,7 +313,7 @@ The API uses standard HTTP status codes to indicate the success or failure of an
 ```json
 {
   "status": "fail",
-  "msg": "Error message",
+  "msg": "Error message"
 }
 ```
 
@@ -355,4 +355,4 @@ For any questions or support, please reach out to:
 - Email: peterihimire@gmail.com
 - Github Issues: [Create an issue](https://github.com/peterihimire/qasetech-task/issues)
 
-what is  a + b = c
+what is a + b = c

@@ -57,7 +57,7 @@ export const loginUser = async (data: {
   password: string;
 }): Promise<{ accessToken: string; refreshToken: string; user: IUser }> => {
   const foundUser = await authRepository.findUserByEmail(data.email);
-  console.log("Found user:", foundUser);
+
   if (!foundUser) {
     throw new BaseError(
       "Error logging in, check credentials!",
