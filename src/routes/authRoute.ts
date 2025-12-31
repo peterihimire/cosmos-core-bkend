@@ -5,8 +5,7 @@ import {
   register,
   refresh,
 } from "../controllers/authController";
-import { SignupValidator, } from "../middlewares/validator";
-import { requireAdmin } from "../middlewares/verifyToken";
+import { SignupValidator } from "../middlewares/validatorMiddleware";
 
 const router = Router();
 

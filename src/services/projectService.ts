@@ -9,11 +9,7 @@ import { IProject } from "../models/Project";
 
 dotenv.config();
 
-/**
- * Registers a new user.
- * @param data The data of the user to create.
- * @returns Promise<IUser | null>
- */
+// Add a new project
 export const addProject = async (data: {
   name: string;
   description: string;

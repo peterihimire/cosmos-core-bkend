@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import app from "./app";
-import "./jobs/task.jobs";
+// import "./jobs/task.jobs";
 
 dotenv.config();
 
@@ -19,7 +19,6 @@ const connectWithRetry = async () => {
       dbName: "cosmos_core",
     });
     console.log("Connected DB:", mongoose.connection.name);
-    // console.log("MongoDB connection was successful...");
   } catch (err) {
     console.error("Error connecting to MongoDB:", err);
     setTimeout(connectWithRetry, 5000);

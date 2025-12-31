@@ -2,19 +2,19 @@ import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import BaseError from "../utils/base-error";
 import { httpStatusCodes } from "../utils/http-status-codes";
+import { CreateTaskDTO } from "../types/taskDto";
 import { ITask } from "../models/Task";
 import {
   addTask,
   getAllTasks,
   getTaskById,
   claimTask,
+  completeTask,
 } from "../services/taskService";
 
-/**
- * Add new task.
- */
+// Adds a new task.
 export const addNewTask: RequestHandler = async (req, res, next) => {
-  const { title, description, projectId } = req.body;
+  const { title, description, projectId }: CreateTaskDTO = req.body;
 
   try {
     const errors = validationResult(req);
@@ -54,9 +54,7 @@ export const addNewTask: RequestHandler = async (req, res, next) => {
   }
 };
 
-/**
- * Get all tasks with pagination.
- */
+// Get all tasks with pagination and filtering
 export const getTasks: RequestHandler = async (req, res, next) => {
   try {
     const pageNumber = Number(req.query.page) || 1;
@@ -98,9 +96,7 @@ export const getTasks: RequestHandler = async (req, res, next) => {
   }
 };
 
-/**
- * Get task
- */
+// Get a single task by ID
 export const getTask: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
   try {
@@ -127,6 +123,7 @@ export const getTask: RequestHandler = async (req, res, next) => {
   }
 };
 
+// Claim a task
 export const claimTaskController: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
   const userId = req.user?.id as string;
@@ -148,5 +145,26 @@ export const claimTaskController: RequestHandler = async (req, res, next) => {
       error.statusCode = httpStatusCodes.INTERNAL_SERVER;
     }
     next(error);
+  }
+};
+
+// Complete a task
+export const completeTaskController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { id: taskId } = req.params;
+    const userId = req.user!.id;
+    const task = await completeTask(taskId, userId);
+
+    res.status(httpStatusCodes.OK).json({
+      status: "success",
+      message: "Task completed successfully",
+      data: task,
+    });
+  } catch (err) {
+    next(err);
   }
 };

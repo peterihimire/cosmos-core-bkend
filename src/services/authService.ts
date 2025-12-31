@@ -16,11 +16,7 @@ if (!JWT_KEY || !JWT_REFRESH_KEY) {
   );
 }
 
-/**
- * Registers a new user.
- * @param data The data of the user to create.
- * @returns Promise<IUser | null>
- */
+// Register a new user
 export const registerUser = async (data: {
   firstname: string;
   lastname: string;
@@ -48,12 +44,7 @@ export const registerUser = async (data: {
   return newUser;
 };
 
-/**
- * Logs in a user and returns JWT tokens.
- * @param username The username of the user to login.
- * @param password The password of the user to login.
- * @returns Promise<{ accessToken: string; refreshToken: string; user: IUser }>
- */
+// Login user and generate tokens
 export const loginUser = async (data: {
   email: string;
   password: string;
@@ -93,11 +84,7 @@ export const loginUser = async (data: {
   return { accessToken, refreshToken, user: foundUser };
 };
 
-/**
- * Refreshes the access token.
- * @param refreshToken The refresh token to be used.
- * @returns Promise<{ accessToken: string }>
- */
+// Refresh access token using refresh token
 export const refreshAccessToken = async (
   refreshToken: string
 ): Promise<{ accessToken: string; newRefreshToken: string }> => {

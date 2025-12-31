@@ -8,7 +8,7 @@ import {
   logErrorMiddleware,
   returnError,
   unknownRoute,
-} from "./middlewares/errorHandler";
+} from "./middlewares/errorHandlerMiddleware";
 
 const corsOptions = {
   origin: ["http://localhost:3000", "https://localhost:3000"],

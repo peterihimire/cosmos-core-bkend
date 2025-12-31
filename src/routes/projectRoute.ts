@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { addNewTask } from "../controllers/taskController";
 import { addNewProject } from "../controllers/projectController";
-import { ProjectValidator } from "../middlewares/validator";
+import { ProjectValidator } from "../middlewares/validatorMiddleware";
 import {
   verifyTokenAndAuthorization,
   requireAdmin,
-} from "../middlewares/verifyToken";
+} from "../middlewares/authMiddleware";
 
 const router = Router();
 

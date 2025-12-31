@@ -2,17 +2,16 @@ import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import BaseError from "../utils/base-error";
 import { httpStatusCodes } from "../utils/http-status-codes";
+import { CreateProjectDTO } from "../types/projectDto";
 import {
   addProject,
   // foundAllTransactions,
   // foundTransactionById,
 } from "../services/projectService";
 
-/**
- * Add new project.
- */
+// Adds a new project.
 export const addNewProject: RequestHandler = async (req, res, next) => {
-  const { name, description } = req.body;
+  const { name, description }: CreateProjectDTO = req.body;
 
   try {
     const errors = validationResult(req);

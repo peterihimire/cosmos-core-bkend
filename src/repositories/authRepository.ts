@@ -1,11 +1,7 @@
 import UserModel from "../models/User";
 import { IUser } from "../models/User";
 
-/**
- * Finds a user by email.
- * @param email The email of the user to find.
- * @returns Promise<IUser | null>
- */
+// Finds a user by email.
 export const findUserByEmail = async (
   email: string
 ): Promise<IUser | null> => {
@@ -15,20 +11,12 @@ export const findUserByEmail = async (
   return UserModel.findOne({ email }).exec();
 };
 
-/**
- * Finds a user by id.
- * @param id The id of the user to find.
- * @returns Promise<IUser | null>
- */
+// Finds a user by id
 export const findUserById = async (id: string): Promise<IUser | null> => {
   return UserModel.findOne({ _id: id }).exec();
 };
 
-/**
- * Creates a new user.
- * @param data The data of the user to create.
- * @returns Promise<IUser | null>
- */
+// Creates a new user
 export const createUser = async (data: {
   firstname: string;
   lastname: string;

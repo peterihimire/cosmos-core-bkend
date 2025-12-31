@@ -1,11 +1,8 @@
+import { ClientSession } from "mongoose";
 import TaskModel from "../models/Task";
 import { ITask } from "../models/Task";
 
-/**
- * Creates a new task.
- * @param data The data of the task to create.
- * @returns Promise<ITask | null>
- */
+// Create a new task
 export const createTask = async (data: {
   title: string;
   description: string;
@@ -23,29 +20,17 @@ export const createTask = async (data: {
   return newTask;
 };
 
-/**
- * Finds a transaction by amount.
- * @param id The amount of the transaction to find.
- * @returns Promise<ITask | null>
- */
+// Find a task by id
 export const findTaskById = async (id: string): Promise<ITask | null> => {
   return TaskModel.findById(id).exec();
 };
 
-/**
- * Counts the total number of tasks.
- * @returns Promise<number>
- */
+// Count a task for use in pagination
 export const countTasks = async (filter: any = {}): Promise<number> => {
   return TaskModel.countDocuments(filter);
 };
 
-/**
- * Finds all tasks with pagination.
- * @param limit Number of tasks to retrieve per page.
- * @param offset Number of tasks to skip.
- * @returns Promise<ITask[]>
- */
+// Find all task
 export const findAllTasks = async (
   limit: number,
   offset: number,
@@ -54,9 +39,11 @@ export const findAllTasks = async (
   return TaskModel.find(filter).skip(offset).limit(limit).exec();
 };
 
+// Claim a task
 export const claimTask = async (
   taskId: string,
   userId: string
+  // session: ClientSession
 ): Promise<ITask | null> => {
   const claimedTask = await TaskModel.findOneAndUpdate(
     {
@@ -71,21 +58,33 @@ export const claimTask = async (
         claimedAt: new Date(),
       },
     },
-    { new: true } // return the updated document
+    {
+      new: true,
+      // session
+    } // return the updated document
   ).exec();
   return claimedTask;
 };
 
-export const activeTasks = async (userId: string): Promise<number> => {
-  const activeTasks = await TaskModel.countDocuments({
-    assignedTo: userId,
-    status: "IN_PROGRESS",
-  });
+// Active task count
+export const activeTasks = async (
+  userId: string
+  // session: ClientSession
+): Promise<number> => {
+  const activeTasks = await TaskModel.countDocuments(
+    {
+      assignedTo: userId,
+      status: "IN_PROGRESS",
+    },
+    {
+      // session
+    }
+  );
 
   return activeTasks;
 };
 
-// repositories/task.repository.ts
+// Set Task as Expired
 export const expireOpenTasks = async (cutoff: Date) => {
   return TaskModel.updateMany(
     {
@@ -96,6 +95,7 @@ export const expireOpenTasks = async (cutoff: Date) => {
   );
 };
 
+// Set Task as open
 export const reopenStaleTasks = async (cutoff: Date) => {
   return TaskModel.updateMany(
     {
@@ -108,6 +108,39 @@ export const reopenStaleTasks = async (cutoff: Date) => {
         assignedTo: null,
         claimedAt: null,
       },
+    }
+  );
+};
+
+// Find Expired Task
+export const findExpiredTasks = async (cutoff: Date): Promise<ITask[]> => {
+  return TaskModel.find({ status: "EXPIRED", createdAt: { $lte: cutoff } });
+};
+
+// Find Opened Task
+export const findReopenedTasks = async (cutoff: Date): Promise<ITask[]> => {
+  return TaskModel.find({ status: "OPEN", claimedAt: { $lte: cutoff } });
+};
+
+// Set Task as completed
+export const completeTask = async (
+  taskId: string,
+  userId: string
+): Promise<ITask | null> => {
+  return TaskModel.findOneAndUpdate(
+    {
+      _id: taskId,
+      status: "IN_PROGRESS",
+      assignedTo: userId,
+    },
+    {
+      $set: {
+        status: "COMPLETED",
+        completedAt: new Date(),
+      },
+    },
+    {
+      new: true,
     }
   );
 };

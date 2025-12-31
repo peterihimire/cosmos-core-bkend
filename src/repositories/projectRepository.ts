@@ -1,11 +1,8 @@
 import ProjectModel from "../models/Project";
 import { IProject } from "../models/Project";
 
-/**
- * Creates a new task.
- * @param data The data of the task to create.
- * @returns Promise<IProject | null>
- */
+
+// Creates a new project
 export const createProject = async (data: {
   name: string;
   description: string;
@@ -21,11 +18,7 @@ export const createProject = async (data: {
   return projectTask;
 };
 
-/**
- * Finds a transaction by amount.
- * @param id The amount of the transaction to find.
- * @returns Promise<IProject | null>
- */
+// Find a new project by id
 export const findProjectById = async (
   id: string
 ): Promise<IProject | null> => {

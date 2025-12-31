@@ -2,17 +2,16 @@ import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import BaseError from "../utils/base-error";
 import { httpStatusCodes } from "../utils/http-status-codes";
+import { RegisterUserDTO, LoginUserDTO } from "../types/authDto";
 import {
   registerUser,
   loginUser,
   refreshAccessToken,
 } from "../services/authService";
 
-/**
- * Registers a new user.
- */
+// Registers a new user.
 export const register: RequestHandler = async (req, res, next) => {
-  const { firstname, lastname, email, password } = req.body;
+  const { firstname, lastname, email, password }: RegisterUserDTO = req.body;
 
   try {
     const errors = validationResult(req);
@@ -34,7 +33,7 @@ export const register: RequestHandler = async (req, res, next) => {
       );
     }
 
-    console.log("This is created user", createdUser);
+    // console.log("This is created user", createdUser);
     const userObject = createdUser.toObject();
     const { password: _, ...userData } = userObject;
 
@@ -51,11 +50,9 @@ export const register: RequestHandler = async (req, res, next) => {
   }
 };
 
-/**
- * Logs in a user.
- */
+// Logs in a user and generates tokens.
 export const login: RequestHandler = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password }: LoginUserDTO = req.body;
 
   try {
     const { accessToken, refreshToken, user } = await loginUser({
@@ -86,9 +83,7 @@ export const login: RequestHandler = async (req, res, next) => {
   }
 };
 
-/**
- * Refreshes the access token.
- */
+// Refreshes access token using the provided refresh token.
 export const refresh: RequestHandler = async (req, res, next) => {
   const { refreshToken } = req.body;
 
@@ -117,9 +112,7 @@ export const refresh: RequestHandler = async (req, res, next) => {
   }
 };
 
-/**
- * Logs out a user.
- */
+// Logs out a user by clearing the refresh token cookie.
 export const logout: RequestHandler = (req, res) => {
   res
     .clearCookie("refreshToken", {
