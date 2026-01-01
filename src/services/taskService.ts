@@ -95,6 +95,7 @@ export const getAllTasks = async (
       tasks,
     };
   } catch (error) {
+    console.log(error);
     throw new BaseError(
       "Failed to retrieve tasks",
       httpStatusCodes.INTERNAL_SERVER
@@ -111,11 +112,8 @@ export const updateTask = async (
     description?: string;
     status?: string;
     assignedTo?: string;
-    expiresAt?: Date;
-    // updatedBy: string; // User ID of who's making the update
   }
 ): Promise<ITask> => {
-  // Authentication check moved to service
   if (!userId) {
     throw new BaseError(
       "User authentication required",
@@ -127,13 +125,11 @@ export const updateTask = async (
     throw new BaseError("Task not found", httpStatusCodes.NOT_FOUND);
   }
 
-  // Prepare update object
   const updates: Partial<ITask> = {};
   if (data.title !== undefined) updates.title = data.title;
   if (data.description !== undefined) updates.description = data.description;
   if (data.status !== undefined) updates.status = data.status;
   if (data.assignedTo !== undefined) updates.assignedTo = data.assignedTo;
-  if (data.expiresAt !== undefined) updates.expiresAt = data.expiresAt;
 
   updates.updatedAt = new Date();
 
@@ -167,45 +163,35 @@ export const claimTask = async (
   taskId: string,
   userId: string
 ): Promise<ITask | null> => {
-  // const session = await mongoose.startSession();
-  // session.startTransaction();
-  try {
-    const id = taskId;
-    const task = await getTaskById({ id });
+  const id = taskId;
+  const task = await getTaskById({ id });
 
-    if (!task) {
-      throw new BaseError("Task not found", httpStatusCodes.NOT_FOUND);
-    }
-
-    const activeTaskCount = await taskRepository.activeTasks(
-      userId
-      // session
-    );
-    if (activeTaskCount >= 2) {
-      throw new BaseError(
-        "You already have 2 active tasks",
-        httpStatusCodes.BAD_REQUEST
-      );
-    }
-    const claimedTask = await taskRepository.claimTask(
-      taskId,
-      userId
-      // session
-    );
-    if (!claimedTask) {
-      throw new BaseError(
-        "Task is already claimed or does not exist",
-        httpStatusCodes.BAD_REQUEST
-      );
-    }
-    // await session.commitTransaction();
-    return claimedTask;
-  } catch (error) {
-    // await session.abortTransaction();
-    throw error;
-  } finally {
-    // session.endSession();
+  if (!task) {
+    throw new BaseError("Task not found", httpStatusCodes.NOT_FOUND);
   }
+
+  if (task.assignedTo) {
+    throw new BaseError(
+      "Task is already assigned",
+      httpStatusCodes.BAD_REQUEST
+    );
+  }
+  const activeTaskCount = await taskRepository.activeTasks(userId);
+  if (activeTaskCount >= 2) {
+    throw new BaseError(
+      "You already have 2 active tasks",
+      httpStatusCodes.BAD_REQUEST
+    );
+  }
+  const claimedTask = await taskRepository.claimTask(taskId, userId);
+  if (!claimedTask) {
+    throw new BaseError(
+      "Task is already claimed or does not exist",
+      httpStatusCodes.BAD_REQUEST
+    );
+  }
+
+  return claimedTask;
 };
 
 // Run task lifecycle to expire and reopen tasks

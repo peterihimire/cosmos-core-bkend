@@ -23,7 +23,6 @@ export const addNewTask: RequestHandler = async (req, res, next) => {
     });
 
     const taskObject = createdTask.toObject();
-    // const { _id, ...taskData } = taskObject;
 
     res.status(httpStatusCodes.CREATED).json({
       status: "success",
@@ -87,7 +86,6 @@ export const getTask: RequestHandler = async (req, res, next) => {
     const getTask = await getTaskById({ id });
 
     const taskObject = getTask.toObject();
-    // const { _id, ...taskData } = taskObject;
 
     res.status(httpStatusCodes.OK).json({
       status: "success",
@@ -115,7 +113,6 @@ export const updateTaskController: RequestHandler = async (req, res, next) => {
       description,
       status,
       assignedTo,
-      expiresAt: expiresAt ? new Date(expiresAt) : undefined,
     });
 
     res.status(httpStatusCodes.OK).json({
