@@ -30,7 +30,7 @@ const corsOptions = {
 const app: Application = express();
 app.set("trust proxy", 1);
 
-// MIDDLEWARES
+// GLOBAL MIDDLEWARES
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());

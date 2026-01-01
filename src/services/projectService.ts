@@ -41,50 +41,12 @@ export const getProjectById = async (data: {
 };
 
 // Get all projects with pagination and filtering
-export const getAllProjects = async (
-  filters: {
-    status?: string;
-    search?: string;
-    createdBy?: string;
-    fromDate?: string;
-    toDate?: string;
-  } = {},
-  page: number = 1,
-  limit: number = 10
-): Promise<{
+export const getAllProjects = async (): Promise<{
   projects: IProject[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
 }> => {
-  const skip = (page - 1) * limit;
+  const projects = await projectRepository.findAllProjects();
 
-  const mongoFilter: any = {};
-
-  if (filters.fromDate || filters.toDate) {
-    mongoFilter.createdAt = {};
-    if (filters.fromDate)
-      mongoFilter.createdAt.$gte = new Date(filters.fromDate);
-    if (filters.toDate) mongoFilter.createdAt.$lte = new Date(filters.toDate);
-  }
-
-  const [projects, total] = await Promise.all([
-    projectRepository.findAllProjects(mongoFilter, skip, limit),
-    projectRepository.countProjects(mongoFilter),
-  ]);
-
-  return {
-    projects,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  };
+  return { projects };
 };
 
 // Update a project

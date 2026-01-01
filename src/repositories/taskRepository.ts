@@ -21,7 +21,9 @@ export const createTask = async (data: {
 
 // Find a task by id
 export const findTaskById = async (id: string): Promise<ITask | null> => {
-  return TaskModel.findById(id).exec();
+  return TaskModel.findById(id)
+    .populate("assignedTo", "_id firstname lastname email")
+    .exec();
 };
 
 // Count a task for use in pagination
@@ -55,7 +57,12 @@ export const findAllTasks = async (
   offset: number,
   filter: any = {}
 ): Promise<ITask[]> => {
-  return TaskModel.find(filter).skip(offset).limit(limit).exec();
+  return TaskModel.find(filter)
+    .populate("assignedTo", "_id firstname lastname email")
+    .skip(offset)
+    .limit(limit)
+    .sort({ createdAt: -1 })
+    .exec();
 };
 
 // Claim a task

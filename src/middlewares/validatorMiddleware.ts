@@ -7,7 +7,7 @@ export const SignupValidator: ValidationChain[] = [
     .isString()
     .notEmpty()
     .withMessage("Firstname is required")
-    .matches(/^[a-zA-Z0-9_]+$/) // Allows only alphanumeric characters and underscores
+    .matches(/^[a-zA-Z0-9_]+$/)
     .withMessage(
       "Firstname must be alphanumeric and cannot contain special characters"
     ),
@@ -16,7 +16,7 @@ export const SignupValidator: ValidationChain[] = [
     .isString()
     .notEmpty()
     .withMessage("Lastname is required")
-    .matches(/^[a-zA-Z0-9_]+$/) // Allows only alphanumeric characters and underscores
+    .matches(/^[a-zA-Z0-9_]+$/)
     .withMessage(
       "Lastname must be alphanumeric and cannot contain special characters"
     ),

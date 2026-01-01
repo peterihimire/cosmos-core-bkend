@@ -65,42 +65,34 @@ export const getAllTasks = async (
   const limit = isNaN(pageSize) || pageSize <= 0 ? 10 : pageSize;
   const offset = (pageNumber - 1) * limit;
 
-  try {
-    const query: any = {};
+  const query: any = {};
 
-    if (filters.status) query.status = filters.status;
-    if (filters.assignedTo) query.assignedTo = filters.assignedTo;
-    if (filters.fromDate || filters.toDate) {
-      query.createdAt = {};
-    }
-    if (filters.fromDate) {
-      const from = new Date(filters.fromDate);
-      from.setHours(0, 0, 0, 0);
-      query.createdAt.$gte = from;
-    }
-    if (filters.toDate) {
-      const to = new Date(filters.toDate);
-      to.setHours(23, 59, 59, 999);
-      query.createdAt.$lte = to;
-    }
-
-    const totalItems = await taskRepository.countTasks(query);
-    const tasks = await taskRepository.findAllTasks(limit, offset, query);
-    const totalPages = Math.ceil(totalItems / limit);
-
-    return {
-      totalItems,
-      totalPages,
-      currentPage: pageNumber,
-      tasks,
-    };
-  } catch (error) {
-    console.log(error);
-    throw new BaseError(
-      "Failed to retrieve tasks",
-      httpStatusCodes.INTERNAL_SERVER
-    );
+  if (filters.status) query.status = filters.status;
+  if (filters.assignedTo) query.assignedTo = filters.assignedTo;
+  if (filters.fromDate || filters.toDate) {
+    query.createdAt = {};
   }
+  if (filters.fromDate) {
+    const from = new Date(filters.fromDate);
+    from.setHours(0, 0, 0, 0);
+    query.createdAt.$gte = from;
+  }
+  if (filters.toDate) {
+    const to = new Date(filters.toDate);
+    to.setHours(23, 59, 59, 999);
+    query.createdAt.$lte = to;
+  }
+
+  const totalItems = await taskRepository.countTasks(query);
+  const tasks = await taskRepository.findAllTasks(limit, offset, query);
+  const totalPages = Math.ceil(totalItems / limit);
+
+  return {
+    totalItems,
+    totalPages,
+    currentPage: pageNumber,
+    tasks,
+  };
 };
 
 // Update a task

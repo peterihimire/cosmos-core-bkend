@@ -29,7 +29,8 @@ const TaskSchema: Schema = new Schema(
       index: true,
     },
     assignedTo: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: false,
       default: null,
       index: true,
@@ -55,16 +56,17 @@ const TaskSchema: Schema = new Schema(
       index: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
-
-// TaskSchema.index(
-//   { _id: 1, assignedTo: 1 },
-//   { unique: true, partialFilterExpression: { assignedTo: { $ne: null } } }
-// );
-TaskSchema.index({ status: 1, assignedTo: 1 });
-TaskSchema.index({ assignedTo: 1, status: 1 });
-TaskSchema.index({ expiresAt: 1 });
+TaskSchema.virtual("assignedUser", {
+  ref: "User",
+  localField: "assignedTo",
+  foreignField: "_id",
+  justOne: true,
+});
+// TaskSchema.index({ status: 1, assignedTo: 1 });
+// TaskSchema.index({ assignedTo: 1, status: 1 });
+// TaskSchema.index({ expiresAt: 1 });
 
 const TaskModel = mongoose.model<ITask>("Task", TaskSchema);
 export default TaskModel;

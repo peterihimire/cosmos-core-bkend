@@ -71,26 +71,12 @@ export const getAllProjectsController: RequestHandler = async (
   next
 ) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-
-    const filters: {
-      fromDate?: string;
-      toDate?: string;
-    } = {};
-
-    if (req.query.fromDate) filters.fromDate = String(req.query.fromDate);
-    if (req.query.toDate) filters.toDate = String(req.query.toDate);
-
-    const result = await getAllProjects(filters, page, limit);
+    const result = await getAllProjects();
 
     res.status(httpStatusCodes.OK).json({
       status: "success",
       msg: "Projects retrieved successfully!",
-      data: {
-        projects: result.projects.map((project) => project.toObject()),
-        pagination: result.pagination,
-      },
+      data: result.projects.map((project) => project.toObject()),
     });
   } catch (error: any) {
     if (!error.statusCode) {
