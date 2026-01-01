@@ -79,13 +79,13 @@ export const loginUser = async (data: {
   const accessToken = sign(
     { id: foundUser.id, email: foundUser.email, role: foundUser.role },
     JWT_KEY,
-    { expiresIn: "1h" }
+    { expiresIn: "2m" }
   );
 
   const refreshToken = sign(
-    { id: foundUser.id, email: foundUser.email },
+    { id: foundUser.id, email: foundUser.email, role: foundUser.role },
     JWT_REFRESH_KEY,
-    { expiresIn: "7d" }
+    { expiresIn: "5m" }
   );
 
   return { accessToken, refreshToken, user: foundUser };
@@ -98,7 +98,8 @@ export const refreshAccessToken = async (
   try {
     const decoded = verify(refreshToken, JWT_REFRESH_KEY) as {
       id: string;
-      username: string;
+      email: string;
+      role: string;
     };
     const foundUser = await authRepository.findUserById(decoded.id);
 
@@ -110,15 +111,15 @@ export const refreshAccessToken = async (
     }
 
     const newAccessToken = sign(
-      { id: foundUser.id, username: foundUser.email },
+      { id: foundUser.id, email: foundUser.email, role: foundUser.role },
       JWT_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: "2m" }
     );
 
     const newRefreshToken = sign(
-      { id: foundUser.id, username: foundUser.email },
+      { id: foundUser.id, email: foundUser.email, role: foundUser.role },
       JWT_REFRESH_KEY,
-      { expiresIn: "7d" }
+      { expiresIn: "5m" }
     );
 
     return { accessToken: newAccessToken, newRefreshToken };

@@ -76,9 +76,18 @@ export const login: RequestHandler = async (req, res, next) => {
 
 // Refreshes access token using the provided refresh token.
 export const refresh: RequestHandler = async (req, res, next) => {
-  const { refreshToken } = req.body;
+  // const { refreshToken } = req.cookies.refreshToken;
 
   try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(httpStatusCodes.UNAUTHORIZED).json({
+        status: "error",
+        msg: "Refresh token missing",
+      });
+    }
+
     const { accessToken, newRefreshToken } = await refreshAccessToken(
       refreshToken
     );
@@ -87,13 +96,13 @@ export const refresh: RequestHandler = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 3600000,
+      maxAge: 5 * 60 * 1000,
     });
 
     res.status(httpStatusCodes.OK).json({
       status: "success",
       msg: "Token refreshed successfully",
-      data: { accessToken, refreshToken: newRefreshToken },
+      data: { accessToken },
     });
   } catch (error: any) {
     if (!error.statusCode) {
