@@ -23,6 +23,7 @@ This project is a lightweight SaaS Platform is designed to streamline task assig
 - [Installation](#installation)
 - [Environment Variables](#environment-variables)
 - [Running the Server](#running-the-server)
+- [API Documentation](#api-documentation)
 - [Design Decisions](#design-decisions)
 - [Trade Offs](#trade-offs)
 - [How Race Condition Was Handled](#how-race-condition-was-handled)
@@ -104,7 +105,7 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
    yarn start
    ```
 
-2. Access the API documentation:
+## API Documentation
 
    Visit the Postman documentation [Link](https://documenter.getpostman.com/view/12340633/2sBXVcjsQz) of this mini task management SaaS app.
 

@@ -102,8 +102,6 @@ export const updateTask = async (
     id: string;
     title?: string;
     description?: string;
-    status?: string;
-    assignedTo?: string;
   }
 ): Promise<ITask> => {
   if (!userId) {
@@ -120,8 +118,6 @@ export const updateTask = async (
   const updates: Partial<ITask> = {};
   if (data.title !== undefined) updates.title = data.title;
   if (data.description !== undefined) updates.description = data.description;
-  if (data.status !== undefined) updates.status = data.status;
-  if (data.assignedTo !== undefined) updates.assignedTo = data.assignedTo;
 
   updates.updatedAt = new Date();
 

@@ -56,8 +56,6 @@ export const updateProject = async (
     id: string;
     name?: string;
     description?: string;
-    status?: string;
-    members?: Array<{ userId: string; role: string }>;
   }
 ): Promise<IProject> => {
   if (!userId) {

@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import { httpStatusCodes } from "../utils/http-status-codes";
-import { CreateProjectDTO } from "../types/projectDto";
+import { CreateProjectDTO, UpdateProjectDTO } from "../types/projectDto";
 import {
   addProject,
   getAllProjects,
@@ -93,7 +93,7 @@ export const updateProjectController: RequestHandler = async (
   next
 ) => {
   const { id } = req.params;
-  const { name, description, status, members } = req.body;
+  const { name, description }: UpdateProjectDTO = req.body;
   const userId = req.user?.id;
 
   try {
@@ -101,8 +101,6 @@ export const updateProjectController: RequestHandler = async (
       id,
       name,
       description,
-      status,
-      members,
     });
 
     res.status(httpStatusCodes.OK).json({

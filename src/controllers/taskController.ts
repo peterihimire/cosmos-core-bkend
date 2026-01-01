@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { httpStatusCodes } from "../utils/http-status-codes";
-import { CreateTaskDTO } from "../types/taskDto";
+import { CreateTaskDTO, UpdateTaskDTO } from "../types/taskDto";
 import {
   addTask,
   getAllTasks,
@@ -103,7 +103,7 @@ export const getTask: RequestHandler = async (req, res, next) => {
 // Update a task
 export const updateTaskController: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, status, assignedTo, expiresAt } = req.body;
+  const { title, description }: UpdateTaskDTO = req.body;
   const userId = req.user?.id;
 
   try {
@@ -111,8 +111,6 @@ export const updateTaskController: RequestHandler = async (req, res, next) => {
       id,
       title,
       description,
-      status,
-      assignedTo,
     });
 
     res.status(httpStatusCodes.OK).json({
