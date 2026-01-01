@@ -79,13 +79,13 @@ export const loginUser = async (data: {
   const accessToken = sign(
     { id: foundUser.id, email: foundUser.email, role: foundUser.role },
     JWT_KEY,
-    { expiresIn: "2m" }
+    { expiresIn: "2h" }
   );
 
   const refreshToken = sign(
     { id: foundUser.id, email: foundUser.email, role: foundUser.role },
     JWT_REFRESH_KEY,
-    { expiresIn: "5m" }
+    { expiresIn: "5d" }
   );
 
   return { accessToken, refreshToken, user: foundUser };
@@ -113,13 +113,13 @@ export const refreshAccessToken = async (
     const newAccessToken = sign(
       { id: foundUser.id, email: foundUser.email, role: foundUser.role },
       JWT_KEY,
-      { expiresIn: "2m" }
+      { expiresIn: "2h" }
     );
 
     const newRefreshToken = sign(
       { id: foundUser.id, email: foundUser.email, role: foundUser.role },
       JWT_REFRESH_KEY,
-      { expiresIn: "5m" }
+      { expiresIn: "5d" }
     );
 
     return { accessToken: newAccessToken, newRefreshToken };

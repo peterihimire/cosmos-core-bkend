@@ -55,7 +55,7 @@ export const login: RequestHandler = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 604800000, // 7 days
+      maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
     });
 
     const userObject = user.toObject();
@@ -96,7 +96,7 @@ export const refresh: RequestHandler = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 5 * 60 * 1000,
+      maxAge: 5 * 24 * 60 * 60 * 1000,
     });
 
     res.status(httpStatusCodes.OK).json({

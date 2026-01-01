@@ -108,9 +108,15 @@ export const expireOpenTasks = async (cutoff: Date) => {
   return TaskModel.updateMany(
     {
       status: "OPEN",
+      assignedTo: null,
       createdAt: { $lte: cutoff },
     },
-    { $set: { status: "EXPIRED" } }
+    {
+      $set: {
+        status: "EXPIRED",
+        expiresAt: new Date(),
+      },
+    }
   );
 };
 
@@ -119,6 +125,7 @@ export const reopenStaleTasks = async (cutoff: Date) => {
   return TaskModel.updateMany(
     {
       status: "IN_PROGRESS",
+      assignedTo: { $ne: null },
       claimedAt: { $lte: cutoff },
     },
     {

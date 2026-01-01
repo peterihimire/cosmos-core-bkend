@@ -2,36 +2,38 @@
 
 ## Introduction
 
-This project is designed to provide a robust API for managing user authentication and handling financial transactions. It is intended for use in scenarios where secure user management and transaction recording are required.
-
-## Overview
-
-This project provides an API for handling user authentication and transaction management. It uses Express.js for the server framework and MongoDB for data storage. The API supports user registration, transaction creation, and retrieval of transactions.
+This project is a lightweight SaaS Platform is designed to streamline task assignments and tracking for remote teams. It provides a centralized system where team admins can manage projects and tasks, while team members can claim and update tasks **status** to completed in real time. The platform ensures accountability, visibility, and efficiency across distributed teams by integrating automated features and audit logging.
 
 ## Features
 
-- User authentication and authorization
-- Create & Read operations for transactions
-- Comprehensive error handling
-- Unit tests for transaction service
+- **Authentication**: User authentication and authorization
+- **Project & Task Management**: Admins can manage projects and assign tasks with deadlines and descriptions.
+- **Task Assignment & Automation**: Users can claim open tasks, and tasks are automatically expired or reassigned when needed.
+- **Audit Logging**: All critical actions of task claim etc. are logged to maintain visibility and accountability.
+- **Role-Based Access Control**: (ADMIN | USER) have access permissions tailored to their responsibilities.
+- **Resilient & Reliable**: Handles access token and refresh token expiration securely and gracefully
+- **Error Handling**: Comprehensive error handling
+- **Rate Limit**: Rate Limit on the claim task API
+- **Node Cron**: Atomic updates with conditions for expiring and re-assigning task
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
+- [Setup](#setup)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Environment Variables](#environment-variables)
 - [Running the Server](#running-the-server)
-- [API Endpoints](#api-endpoints)
-  - Authentication
-  - Transaction
-- [Validation & Error Handling](#validation-&-error-handling)
-- [Running Tests](#running-tests)
+- [Design Decisions](#design-decisions)
+- [Trade Offs](#trade-offs)
+- [How Race Condition Was Handled](#how-race-condition-was-handled)
+- [How Task Expiration Works](#how-task-expiration-works)
+- [Future Improvements](#future-improvements)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
+- [Images](#images)
 
-## Getting Started
+## Setup
 
 Follow these instructions to set up the project on your local machine.
 
@@ -49,19 +51,21 @@ Follow these instructions to set up the project on your local machine.
 - bcrypt
 - Express-validator
 - dotenv
+- Express-Rate-Limit
+- Node Cron
 
 ## Installation
 
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/peterihimire/qasetech-task.git
+   git clone https://github.com/peterihimire/cosmos-core-bkend.git
    ```
 
 2. Change directory into the project folder:
 
    ```sh
-   cd qasetech-task
+   cd cosmos-core-bkend
    ```
 
 3. Install dependencies:
@@ -83,7 +87,7 @@ Follow these instructions to set up the project on your local machine.
 The project requires several environment variables to be configured. Here’s a brief overview of each:
 
 - `MONGO_URI`: MongoDB connection string.
-  \_ `NODE_ENV`: Node environment either development or production
+- `NODE_ENV`: Node environment either development or production
 - `JWT_KEY`: Secret key for signing JWT tokens.
 - `JWT_REFRESH_KEY`: Secret key for signing the refresh tokens.
 - `PORT`: Port number where the server will run.
@@ -102,237 +106,130 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 
 2. Access the API documentation:
 
-   Visit the Postman documentation [Link](https://documenter.getpostman.com/view/12340633/2sA3s1nrJj) of this transaction app.
+   Visit the Postman documentation [Link](https://documenter.getpostman.com/view/12340633/2sBXVcjsQz) of this mini task management SaaS app.
 
-## API Endpoints
+## Design Decisions
 
-All endpoints except authentication endpoints require a valid JWT token. The token should be included in the **Authorization** header as follows:
+**Layered Architecture (Controller → Service → Repository)**:
 
-```makefile
-Authorization: Bearer <token>
-```
+- Separates concerns: controllers handle request/response, services handle business logic, repositories handle DB access.
+- Makes testing, maintenance, and future scaling easier.
 
-### Authentication
+**JWT Authentication with Refresh Tokens**:
 
-- **Sign Up**:
+- Access tokens expire quickly (e.g., 2 hours)
+- Refresh tokens stored as HTTP-only cookies (e.g., 5 days)
+- Automatic token refresh handled in frontend Axios interceptors.
 
-- URL: /api/auth/signup
-- Method: POST
-- Auth Required: No
-- Request body:
+**Audit Logs**:
 
-  ```json
-  {
-    "username": "benji4life",
-    "password": "Eromo1123@"
-  }
-  ```
+- All critical actions (task create, update, claim, delete) are logged.
 
-- Response:
+**Task Expiration & Reassignment**:
 
-  ```json
-  {
-    "status": "success",
-    "msg": "Signup successful!",
-    "data": {
-      "username": "benji4life",
-      "_id": "66b3cf65f16f7de24d17b834",
-      "__v": 0
-    }
-  }
-  ```
+- Services automatically mark tasks as expired after expiresAt.
+- Optionally reassign tasks to an unassigned pool.
 
-- **Sign In**:
+**Centralized Error Handling**:
 
-- URL: /api/auth/signin
-- Method: POST
-- Auth Required: No
-- Request body:
+- Middleware returns consistent HTTP responses.
+- Supports slice-level error reporting in frontend for partial API failures.
 
-  ```json
-  {
-    "username": "benji4life",
-    "password": "Eromo1123@"
-  }
-  ```
+**Security Considerations**:
 
-- Response:
+- HTTP-only refresh tokens prevent XSS & CSRF attacks.
+- Role-based access control (ADMIN / USER).
+- Passwords hashed before storing in DB.
 
-  ```json
-  {
-    "status": "success",
-    "msg": "Signin successful",
-    "data": {
-      "_id": "66b47ff1bc6317117465f5f1",
-      "username": "benji4life",
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTQ4MywiZXhwIjoxNzIzMTA5MDgzfQ.LX17oA4A27qxkHqEqEuvUk_-eAXsTJmh-LA0_MhmgdQ"
-    }
-  }
-  ```
+**TypeScript**:
 
-  - **Refresh Token**:
+- Used typescript for type safety and bug prevention
+- Helps in self documenting 
+- Helps for scalability and team collaboration
 
-  - URL: /api/auth/refresh-token
-  - Method: POST
-  - Auth Required: No
-  - Request body:
+**DTO, Validations and User Role To Prevent OverPosting/Mass Assignment**:
 
-  ```json
-  {
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNzc2NGNhMi03MTA0LTQyMmItYjU4MC01Yjc3MWI0Yzg4ODIiLCJlbWFpbCI6InBldGVyaWhpbWlyZUBnbWFpbC5jb20iLCJpYXQiOjE3MjE0MTM2MzQsImV4cCI6MTcyMjAxODQzNH0.usdmLL9hEYcc_vKAo8ueZeOCvZfrFgkx1DbolyQb4ME"
-  }
-  ```
+- Used DTO types to prevent overposting non-essential data payload when creating Projects and Tasks. Will apply same for update and deletes if time permits
+- Used the User role to control who creates updates deletes , only ADMIN can modify those endpoints.
+- Integrated Rate Limit
 
-- Response:
 
-  ```json
-  {
-    "status": "success",
-    "msg": "Token refreshed successfully",
-    "data": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTM5NywiZXhwIjoxNzIzMTA4OTk3fQ.iCfTCDqcD4QaPs5r33U0KX1JZErZAw6w9VIvbAVq7NI",
-      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2YjQ3ZmYxYmM2MzE3MTE3NDY1ZjVmMSIsInVzZXJuYW1lIjoidHVwYWNhbWFydSIsImlhdCI6MTcyMzEwNTM5NywiZXhwIjoxNzIzNzEwMTk3fQ.JsdBxpebliNunwZ4Q91qmCE8-Nzj2W9VkVaK2cHQgoo"
-    }
-  }
-  ```
+## Trade-Offs
 
-- **Sign Out**:
-- URL: /api/auth/signout
-- Method: POST
-- Auth Required: No
+**Layered architecture**:
 
-- Response:
+- Adds more files/folders but improves maintainability and testability.
 
-  ```json
-  {
-    "status": "success",
-    "msg": "Signout successful."
-  }
-  ```
+**Short-lived access token**:
 
-### Transaction
+- Improves security, but users may see frequent refresh requests.
 
-- **Create a Transaction**:
+**Refresh token in cookie**:
 
-- URL: /api/transactions
-- Method: POST
-- Auth Required: Yes
-- Request body:
+- Secure (HTTP-only) but harder to access in frontend code for testing.
 
-  ```json
-  {
-    "amount": 50000,
-    "type": "credit",
-    "description": "Yes this is the $50000 credit"
-  }
-  ```
+**MongoDB vs PostgreSQL**:
 
-- Response:
+- MongoDB allows faster prototyping; PostgreSQL could provide stricter relational constraints.
 
-  ```json
-  {
-    "status": "success",
-    "msg": "Transactionn added!",
-    "data": {
-      "transactionData": {
-        "amount": 50000,
-        "type": "credit",
-        "description": "Yes this is the $50000 credit",
-        "id": "33850df7-e435-4785-acaf-fb4dd7c84702",
-        "date": "2024-08-07T19:51:45.689Z",
-        "__v": 0
-      }
-    }
-  }
-  ```
+**Polling for task updates**:
 
-- **Get All Transactions**:
+- Simple, works for small apps; WebSockets would be real-time but more complex.
 
-- URL: /api/transactions
-- Method: GET
-- Auth Required: Yes
+**Centralized error handling**:
 
-- Response:
+- Some errors may need custom responses per route; handled with slice-level errors on frontend.
 
-  ```json
-  {
-    "status": "success",
-    "msg": "All transactions",
-    "data": [
-      {
-        "id": "96463b56-663b-402a-9d0c-0556731bb229",
-        "amount": 100,
-        "type": "debit",
-        "description": "For tesing purposes",
-        "date": "2024-08-07T16:48:42.410Z",
-        "__v": 0
-      },
-      {
-        "id": "ca47c426-eb12-4589-bc3a-6bd7042a3f08",
-        "amount": 1000,
-        "type": "credit",
-        "description": "For credit tesing purposes",
-        "date": "2024-08-07T16:49:19.734Z",
-        "__v": 0
-      }
-    ]
-  }
-  ```
+**Using Vanilla Node Express**:
 
-- **Get a Transaction**:
+- A more robust framework like NEST.JS or Adonis.JS would have been prefferable as they will provide better code structure and force user to follow an already established pattern, it opinionated though.
 
-- URL: /api/transactions/:id
-- Method: GET
-- Auth Required: Yes
+## How Race Condition Was Handled
 
-- Response:
+    export const claimTask = async (
+      taskId: string,
+      userId: string
+    ): Promise<ITask | null> => {
+      const claimedTask = await TaskModel.findOneAndUpdate(
+        {
+          _id: taskId,
+          assignedTo: null,
+          status: "OPEN",
+        },
+        {
+          $set: {
+            assignedTo: userId,
+            status: "IN_PROGRESS",
+            claimedAt: new Date(),
+          },
+        },
+        {
+          new: true,
+        }
+      ).exec();
+      return claimedTask;
+    };
 
-  ```json
-  {
-    "status": "success",
-    "msg": "Transaction info",
-    "data": {
-      "transactionData": {
-        "amount": 50000,
-        "type": "credit",
-        "description": "Yes this is the $50000 credit",
-        "id": "70f5659e-85aa-46e0-927e-b2626cad6a52",
-        "date": "2024-08-07T19:41:30.396Z",
-        "__v": 0
-      }
-    }
-  }
-  ```
+- MongoDB's findOneAndUpdate() is atomic at the document level
 
-## Validation & Error Handling
+- The query (assignedTo: null) and update happen in a single operation
 
-Input validation was integrated for adding transactions. Also the API uses a centralized error handling mechanism to ensure consistent error responses. Errors are categorized by HTTP status codes and include descriptive messages.
+- No other operation can intervene between the check and update
 
-The API uses standard HTTP status codes to indicate the success or failure of an API request. Errors are returned in the following JSON format:
+## How Task Expiration Works
 
-```json
-{
-  "status": "fail",
-  "msg": "Error message"
-}
-```
+**Expire after 24h**: Tasks become EXPIRED if status is OPEN and assignTo === null , uses createdAt time to confirm the actual time of task creation
 
-**Common Errors**:
+**Node Cron**: I have a node cron setup, that runs every **10 mins** to check for Task to expire them
 
-- 400 Bad Request: The request was invalid or cannot be otherwise served.
-- 401 Unauthorized: Authentication credentials were missing or incorrect.
-- 403 Forbidden: The request is understood, but it has been refused or access is not allowed.
-- 404 Not Found: The requested resource could not be found.
+**Audit log**: Also is the Audit log that Log the status of the task to EXPIRED, however at this point the userId and the user email will by saved as **SYSTEM**
 
-## Running Test
+## Future Improvements
 
-Unit test with jest was integrated. To test the application simply run the below command:
-
-```sh
-npm run test
-# or
-yarn run test
-```
+- Replace polling with WebSockets for real-time updates.
+- Add email notifications for task assignments & expirations
+- Implement more granular roles & permissions
+- Add unit and integration tests for controllers, services, and repositories
 
 ## Contributing
 
@@ -353,6 +250,9 @@ This project is licensed under the MIT License.
 For any questions or support, please reach out to:
 
 - Email: peterihimire@gmail.com
-- Github Issues: [Create an issue](https://github.com/peterihimire/qasetech-task/issues)
+- Github Issues: [Create an issue](https://github.com/peterihimire/cosmos-core-bkend/issues)
 
-what is a + b = c
+## Images
+
+![admin](https://res.cloudinary.com/dymhdpka1/image/upload/v1767294223/Screenshot_2026-01-01_at_7.55.41_PM_jzxp9f.png)
+![user](https://res.cloudinary.com/dymhdpka1/image/upload/v1767294739/Screenshot_2026-01-01_at_8.11.51_PM_knukmt.png)
