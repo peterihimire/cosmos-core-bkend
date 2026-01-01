@@ -153,6 +153,10 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 - Used the User role to control who creates updates deletes , only ADMIN can modify those endpoints.
 - Integrated Rate Limit
 
+**ENUM**:
+
+- Used ENUM to prevent invalid state and database consistency
+
 
 ## Trade-Offs
 
@@ -183,6 +187,14 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 **Using Vanilla Node Express**:
 
 - A more robust framework like NEST.JS or Adonis.JS would have been prefferable as they will provide better code structure and force user to follow an already established pattern, it opinionated though.
+
+**No Testing**:
+
+- Because of time, I was not able to write Unit and e2e test
+
+**Database Transactions**:
+
+- Using my mongoDB local instance, I was not able to implement transactions
 
 ## How Race Condition Was Handled
 
