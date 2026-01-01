@@ -107,7 +107,7 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 
 ## API Documentation
 
-   Visit the Postman documentation [Link](https://documenter.getpostman.com/view/12340633/2sBXVcjsQz) of this mini task management SaaS app.
+Visit the Postman documentation [Link](https://documenter.getpostman.com/view/12340633/2sBXVcjsQz) of this mini task management SaaS app.
 
 ## Design Decisions
 
@@ -145,7 +145,7 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 **TypeScript**:
 
 - Used typescript for type safety and bug prevention
-- Helps in self documenting 
+- Helps in self documenting
 - Helps for scalability and team collaboration
 
 **DTO, Validations and User Role To Prevent OverPosting/Mass Assignment**:
@@ -157,7 +157,6 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 **ENUM**:
 
 - Used ENUM to prevent invalid state and database consistency
-
 
 ## Trade-Offs
 
@@ -199,29 +198,31 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 
 ## How Race Condition Was Handled
 
-    export const claimTask = async (
-      taskId: string,
-      userId: string
-    ): Promise<ITask | null> => {
-      const claimedTask = await TaskModel.findOneAndUpdate(
-        {
-          _id: taskId,
-          assignedTo: null,
-          status: "OPEN",
-        },
-        {
-          $set: {
-            assignedTo: userId,
-            status: "IN_PROGRESS",
-            claimedAt: new Date(),
-          },
-        },
-        {
-          new: true,
-        }
-      ).exec();
-      return claimedTask;
-    };
+```ts
+export const claimTask = async (
+  taskId: string,
+  userId: string
+): Promise<ITask | null> => {
+  const claimedTask = await TaskModel.findOneAndUpdate(
+    {
+      _id: taskId,
+      assignedTo: null,
+      status: "OPEN",
+    },
+    {
+      $set: {
+        assignedTo: userId,
+        status: "IN_PROGRESS",
+        claimedAt: new Date(),
+      },
+    },
+    {
+      new: true,
+    }
+  ).exec();
+  return claimedTask;
+};
+```
 
 - MongoDB's findOneAndUpdate() is atomic at the document level
 
