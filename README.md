@@ -38,7 +38,7 @@ This project is a lightweight SaaS Platform is designed to streamline task assig
 
 Follow these instructions to set up the project on your local machine.
 
-## Prerequisites
+## Tech Stack Dependencies
 
 - node.js (>= 14.x)
 - npm (>= 6.x) or yarn (>= 1.x)
@@ -100,9 +100,9 @@ Ensure these variables are set in your `.env` file as specified in the [Installa
 1. Start the server:
 
    ```sh
-   npm start
+   npm run dev
    # or
-   yarn start
+   yarn run dev
    ```
 
 ## API Documentation
