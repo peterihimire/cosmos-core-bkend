@@ -30,7 +30,7 @@ This project is a lightweight SaaS Platform is designed to streamline task assig
 - [How Task Expiration Works](#how-task-expiration-works)
 - [Future Improvements](#future-improvements)
 - [Contributing](#contributing)
-- [License](#license)
+- [Question](#question)
 - [Contact](#contact)
 - [Images](#images)
 
@@ -258,9 +258,14 @@ Contributions are welcome! Please follow these steps to contribute:
 4. Push your changes to your forked repository.
 5. Create a pull request.
 
-## License
+## Question
 
-This project is licensed under the MIT License.
+If this system suddenly had 1 million users, what would you change first and why?
+
+**Answer**
+Since this is a MongoDB-based task management system, my first priority with 1 million users would be sharding strategy, indexing optimization, and read/write separation—specifically focusing on the tasks collection which would become the largest and most queried dataset and caching user data.
+
+Sharding prevents any single server from becoming a huge problem. Indexing for fast queries and caching user data reduces the need for constant lookups.
 
 ## Contact
 
