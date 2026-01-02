@@ -37,6 +37,9 @@ This project is a lightweight SaaS Platform is designed to streamline task assig
 ## Setup
 
 Follow these instructions to set up the project on your local machine.
+- Make sure you have a local or remote instance of mongoDB connected. You can replace the **MONGO_URI** env variable, with your personal mongoDB connection string.
+- To setup an ADMIN account, you can register a user, then go to the database a change the role to ADMIN. This is done to prevent random users from creating an admin accounts. Although a more granular admin setup, with access emails set on the environment variable can be a much better setup.
+- The backend server runs on port **http://localhost:7070/api/cosmos-core/v1/**, while the frontend runs on **http://localhost:5173/**. Visit the API Documentation section, a link to **Postman documentation** was provided.
 
 ## Tech Stack Dependencies
 
